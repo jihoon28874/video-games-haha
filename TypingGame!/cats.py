@@ -14,27 +14,9 @@ def choose(paragraphs, select, k):
     """Return the Kth paragraph from PARAGRAPHS for which SELECT called on the
     paragraph returns True. If there are fewer than K such paragraphs, return
     the empty string.
-
-    Arguments:
-        paragraphs: a list of strings
-        select: a function that returns True for paragraphs that can be selected
-        k: an integer
-
-    >>> ps = ['hi', 'how are you', 'fine']
-    >>> s = lambda p: len(p) <= 4
-    >>> choose(ps, s, 0)
-    'hi'
-    >>> choose(ps, s, 1)
-    'fine'
-    >>> choose(ps, s, 2)
-    ''
     """
-    # BEGIN PROBLEM 1
     new_para_list = [word for word in paragraphs if select(word)]
     return '' if len(new_para_list) < k + 1 else new_para_list[k]
-    
-    # END PROBLEM 1
-
 
 def about(topic):
     """Return a select function that returns whether
@@ -42,15 +24,8 @@ def about(topic):
 
     Arguments:
         topic: a list of words related to a subject
-
-    >>> about_dogs = about(['dog', 'dogs', 'pup', 'puppy'])
-    >>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup!'], about_dogs, 0)
-    'Cute Dog!'
-    >>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup.'], about_dogs, 1)
-    'Nice pup.'
     """
     assert all([lower(x) == x for x in topic]), 'topics should be lowercase.'
-    # BEGIN PROBLEM 2
     def select(paragraph):
         formatted_paragraph = remove_punctuation(paragraph).lower().split()
         for words in topic:
@@ -60,35 +35,12 @@ def about(topic):
         return False
     return select
 
-    # END PROBLEM 2
-
-
 def accuracy(typed, reference):
     """Return the accuracy (percentage of words typed correctly) of TYPED
     when compared to the prefix of REFERENCE that was typed.
-
-    Arguments:
-        typed: a string that may contain typos
-        reference: a string without errors
-
-    >>> accuracy('Cute Dog!', 'Cute Dog.')
-    50.0
-    >>> accuracy('A Cute Dog!', 'Cute Dog.')
-    0.0
-    >>> accuracy('cute Dog.', 'Cute Dog.')
-    50.0
-    >>> accuracy('Cute Dog. I say!', 'Cute Dog.')
-    50.0
-    >>> accuracy('Cute', 'Cute Dog.')
-    100.0
-    >>> accuracy('', 'Cute Dog.')
-    0.0
-    >>> accuracy('', '')
-    100.0
     """
     typed_words = split(typed)
     reference_words = split(reference)
-    # BEGIN PROBLEM 3
     k = 0
     score = 0.0
     if len(typed_words) == 0 and len(reference_words) == 0:
@@ -100,50 +52,18 @@ def accuracy(typed, reference):
             k += 1
     score = k / len(typed_words)
     return score * 100
-    # END PROBLEM 3
-
 
 def wpm(typed, elapsed):
     """Return the words-per-minute (WPM) of the TYPED string.
-
-    Arguments:
-        typed: an entered string
-        elapsed: an amount of time in seconds
-
-    >>> wpm('hello friend hello buddy hello', 15)
-    24.0
-    >>> wpm('0123456789',60)
-    2.0
     """
     assert elapsed > 0, 'Elapsed time must be positive'
-    # BEGIN PROBLEM 4
     return len(typed) / 5 * 60 / elapsed
-    # END PROBLEM 4
-
-
-###########
-# Phase 2 #
-###########
 
 def autocorrect(typed_word, word_list, diff_function, limit):
     """Returns the element of WORD_LIST that has the smallest difference
     from TYPED_WORD. Instead returns TYPED_WORD if that difference is greater
     than LIMIT.
-
-    Arguments:
-        typed_word: a string representing a word that may contain typos
-        word_list: a list of strings representing reference words
-        diff_function: a function quantifying the difference between two words
-        limit: a number
-
-    >>> ten_diff = lambda w1, w2, limit: 10 # Always returns 10
-    >>> autocorrect("hwllo", ["butter", "hello", "potato"], ten_diff, 20)
-    'butter'
-    >>> first_diff = lambda w1, w2, limit: (1 if w1[0] != w2[0] else 0) # Checks for matching first char
-    >>> autocorrect("tosting", ["testing", "asking", "fasting"], first_diff, 10)
-    'testing'
     """
-    # BEGIN PROBLEM 5
     if typed_word in word_list:
         return typed_word
     pairs = {word : diff_function(typed_word, word, limit) for word in word_list}
@@ -152,32 +72,12 @@ def autocorrect(typed_word, word_list, diff_function, limit):
         return min(pairs, key = lambda i: pairs[i])
     else:
         return typed_word
-    # END PROBLEM 5
-
 
 def sphinx_swaps(start, goal, limit):
     """A diff function for autocorrect that determines how many letters
     in START need to be substituted to create GOAL, then adds the difference in
     their lengths and returns the result.
-
-    Arguments:
-        start: a starting word
-        goal: a string representing a desired goal word
-        limit: a number representing an upper bound on the number of chars that must change
-
-    >>> big_limit = 10
-    >>> sphinx_swaps("nice", "rice", big_limit)    # Substitute: n -> r
-    1
-    >>> sphinx_swaps("range", "rungs", big_limit)  # Substitute: a -> u, e -> s
-    2
-    >>> sphinx_swaps("pill", "pillage", big_limit) # Don't substitute anything, length difference of 3.
-    3
-    >>> sphinx_swaps("roses", "arose", big_limit)  # Substitute: r -> a, o -> r, s -> o, e -> s, s -> e
-    5
-    >>> sphinx_swaps("rose", "hello", big_limit)   # Substitute: r->h, o->e, s->l, e->l, length difference of 1.
-    5
     """
-    # BEGIN PROBLEM 6
     diff = 0
     if start == goal:
         return 0
@@ -188,27 +88,11 @@ def sphinx_swaps(start, goal, limit):
     if start[0] != goal[0]:
         diff += 1
     return diff + sphinx_swaps(start[1:],goal[1:],limit - diff)
-        # END PROBLEM 6
-
 
 def minimum_mewtations(start, goal, limit):
     """A diff function that computes the edit distance from START to GOAL.
     This function takes in a string START, a string GOAL, and a number LIMIT.
-
-    Arguments:
-        start: a starting word
-        goal: a goal word
-        limit: a number representing an upper bound on the number of edits
-
-    >>> big_limit = 10
-    >>> minimum_mewtations("cats", "scat", big_limit)       # cats -> scats -> scat
-    2
-    >>> minimum_mewtations("purng", "purring", big_limit)   # purng -> purrng -> purring
-    2
-    >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
-    3
     """
-    # assert False, 'Remove this line'
     diff = 0
     if limit < 0:
         return 1
@@ -227,16 +111,10 @@ def minimum_mewtations(start, goal, limit):
 def final_diff(start, goal, limit):
     """A diff function that takes in a string START, a string GOAL, and a number LIMIT.
     If you implement this function, it will be used."""
-    assert False, 'Remove this line to use your final_diff function.'
+    assert False
 
 
 FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
-
-
-###########
-# Phase 3 #
-###########
-
 
 def report_progress(sofar, prompt, user_id, upload):
     """Upload a report of your id and progress so far to the multiplayer server.
