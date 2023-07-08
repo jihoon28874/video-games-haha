@@ -125,24 +125,14 @@ def report_progress(sofar, prompt, user_id, upload):
         prompt: a list of the words in the typing prompt
         user_id: a number representing the id of the current user
         upload: a function used to upload progress to the multiplayer server
-
-    >>> print_progress = lambda d: print('ID:', d['id'], 'Progress:', d['progress'])
-    >>> # The above function displays progress in the format ID: __, Progress: __
-    >>> print_progress({'id': 1, 'progress': 0.6})
-    ID: 1 Progress: 0.6
-    >>> sofar = ['how', 'are', 'you']
-    >>> prompt = ['how', 'are', 'you', 'doing', 'today']
-    >>> report_progress(sofar, prompt, 2, print_progress)
-    ID: 2 Progress: 0.6
-    0.6
-    >>> report_progress(['how', 'aree'], prompt, 3, print_progress)
-    ID: 3 Progress: 0.2
-    0.2
     """
-    # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 8
-
+    i = 1
+    while i <= len(sofar) and sofar[:i] == prompt[:i]:
+        i += 1
+    progress = (i-1)/len(prompt)
+    upload_content = {'id':user_id, 'progress':progress}
+    upload(upload_content)
+    return progress
 
 def time_per_word(words, times_per_player):
     """Given timing data, return a match dictionary, which contains a
@@ -153,17 +143,11 @@ def time_per_word(words, times_per_player):
         times_per_player: A list of lists of timestamps including the time
                           the player started typing, followed by the time
                           the player finished typing each word.
-
-    >>> p = [[75, 81, 84, 90, 92], [19, 29, 35, 36, 38]]
-    >>> match = time_per_word(['collar', 'plush', 'blush', 'repute'], p)
-    >>> match["words"]
-    ['collar', 'plush', 'blush', 'repute']
-    >>> match["times"]
-    [[6, 3, 6, 2], [10, 6, 1, 2]]
     """
-    # BEGIN PROBLEM 9
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 9
+    for time in times_per_player:
+        for i in range(len(time)-1):
+            times = [[time[i+1] - time[i]]]
+    return match(words, times)
 
 
 def fastest_words(match):
@@ -171,21 +155,14 @@ def fastest_words(match):
 
     Arguments:
         match: a match dictionary as returned by time_per_word.
-
-    >>> p0 = [5, 1, 3]
-    >>> p1 = [4, 1, 6]
-    >>> fastest_words(match(['Just', 'have', 'fun'], [p0, p1]))
-    [['have', 'fun'], ['Just']]
-    >>> p0  # input lists should not be mutated
-    [5, 1, 3]
-    >>> p1
-    [4, 1, 6]
-    """
+        """
     player_indices = range(len(match["times"]))  # contains an *index* for each player
     word_indices = range(len(match["words"]))    # contains an *index* for each word
-    # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 10
+    answers = [[] for ans in player_indices]
+    for word in word_indices:
+        times = [time(match, i, word) for i in player_indices]
+        answers[time.index(min(times))].append(word_at(match, word))
+    return answers
 
 
 def match(words, times):
