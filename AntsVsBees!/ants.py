@@ -240,10 +240,8 @@ class FireAnt(Ant):
     name = 'Fire'
     damage = 3
     food_cost = 5
-    # OVERRIDE CLASS ATTRIBUTES HERE
-    # BEGIN Problem 5
-    implemented = False   # Change to True to view in the GUI
-    # END Problem 5
+    health = 3
+    implemented = True   # Change to True to view in the GUI
 
     def __init__(self, health=3):
         """Create an Ant with a HEALTH quantity."""
@@ -256,10 +254,13 @@ class FireAnt(Ant):
         Make sure to reduce the health of each bee in the current place, and apply
         the additional damage if the fire ant dies.
         """
-        # BEGIN Problem 5
-        "*** YOUR CODE HERE ***"
-        # END Problem 5
-
+        if self.health <= amount:
+            bee_damaged = self.damage + amount
+        else:
+            bee_damaged = amount
+        for bee in list(self.place.bees):
+            Ant.reduce_health(bee, bee_damaged)
+        Ant.reduce_health(self, amount)
 # BEGIN Problem 6
 # The WallAnt class
 # END Problem 6
