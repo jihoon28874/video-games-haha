@@ -261,14 +261,35 @@ class FireAnt(Ant):
         for bee in list(self.place.bees):
             Ant.reduce_health(bee, bee_damaged)
         Ant.reduce_health(self, amount)
-# BEGIN Problem 6
-# The WallAnt class
-# END Problem 6
 
-# BEGIN Problem 7
-# The HungryAnt Class
-# END Problem 7
+class WallAnt(Ant):
+    name = 'Wall'
+    food_cost = 4
+    implemented = True
 
+    def __init__(self, health = 4):
+        super().__init__(health)
+
+class HungryAnt(Ant):
+    name = 'Hungry'
+    food_cost = 4
+    time_to_chew = 3
+    implemented = True
+
+    def __init__(self, health = 1):
+        self.health = health
+        self.chew_timer = 0
+    
+    def eat(self, bee):
+        if bee:
+            bee.reduce_health(bee.health)
+            self.chew_timer = self.time_to_chew
+
+    def action(self, gamestate):
+        if not self.chew_timer:
+            self.eat(random_bee(self.place.bees))
+        else:
+            self.chew_timer -= 1
 
 class ContainerAnt(Ant):
     """
@@ -281,14 +302,11 @@ class ContainerAnt(Ant):
         self.ant_contained = None
 
     def can_contain(self, other):
-        # BEGIN Problem 8
-        "*** YOUR CODE HERE ***"
-        # END Problem 8
+        if not self.ant_contained and not other.is_container:
+            Ant.ant_contained = True
 
     def store_ant(self, ant):
-        # BEGIN Problem 8
-        "*** YOUR CODE HERE ***"
-        # END Problem 8
+        self.ant_contained = ant
 
     def remove_ant(self, ant):
         if self.ant_contained is not ant:
@@ -306,9 +324,8 @@ class ContainerAnt(Ant):
             Ant.remove_from(self, place)
 
     def action(self, gamestate):
-        # BEGIN Problem 8
-        "*** YOUR CODE HERE ***"
-        # END Problem 8
+        if self.ant_contained:
+            self.ant_contained.action(gamestate)
 
 
 class BodyguardAnt(ContainerAnt):
@@ -316,10 +333,11 @@ class BodyguardAnt(ContainerAnt):
 
     name = 'Bodyguard'
     food_cost = 4
-    # OVERRIDE CLASS ATTRIBUTES HERE
-    # BEGIN Problem 8
-    implemented = False   # Change to True to view in the GUI
-    # END Problem 8
+    health = 2
+
+    implemented = True  # Change to True to view in the GUI
+    def __init__(self, health = 2):
+        super().__init__(health)
 
 # BEGIN Problem 9
 # The TankAnt class
