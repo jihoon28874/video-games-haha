@@ -339,10 +339,23 @@ class BodyguardAnt(ContainerAnt):
     def __init__(self, health = 2):
         super().__init__(health)
 
-# BEGIN Problem 9
-# The TankAnt class
-# END Problem 9
+class TankAnt(ContainerAnt):
+    name = 'Tank'
+    damage = 1
+    food_cost = 6
+    implemented = True
 
+    def __init__(self, health = 2):
+        super().__init__(self, health)
+    
+    def action(self, gamestate):
+        super().action(gamestate)
+        bees_in_position = []
+        for bee in gamestate.bees:
+            if bee.place == self.place:
+                bees_in_position.append(bee)
+            for other_bees in bees_in_position:
+                other_bees.reduce_health(self.damage)
 
 class Water(Place):
     """Water is a place that can only hold waterproof insects."""
@@ -350,27 +363,28 @@ class Water(Place):
     def add_insect(self, insect):
         """Add an Insect to this place. If the insect is not waterproof, reduce
         its health to 0."""
-        # BEGIN Problem 10
-        "*** YOUR CODE HERE ***"
-        # END Problem 10
+        Place.add_insect(self, insect)
+        if not insect.is_waterproof:
+            insect.reduce_health(insect.health)
 
-# BEGIN Problem 11
-# The ScubaThrower class
-# END Problem 11
+class ScubaThrower(ThrowerAnt):
+    name = 'Scuba'
+    food_cost = 6
+    health = 1
+    is_waterproof = True
 
-# BEGIN Problem 12
+    def __init__(self, health = 1):
+        Ant.__init__(self, health)
 
 
-class QueenAnt(Ant):  # You should change this line
-# END Problem 12
+class QueenAnt(ScubaThrower): 
     """The Queen of the colony. The game is over if a bee enters her place."""
 
     name = 'Queen'
     food_cost = 7
-    # OVERRIDE CLASS ATTRIBUTES HERE
-    # BEGIN Problem 12
-    implemented = False   # Change to True to view in the GUI
-    # END Problem 12
+    health = 1
+    Queen_exists = False
+    implemented = True   # Change to True to view in the GUI
 
     @classmethod
     def construct(cls, gamestate):
@@ -378,26 +392,35 @@ class QueenAnt(Ant):  # You should change this line
         Returns a new instance of the Ant class if it is possible to construct, or
         returns None otherwise. Remember to call the construct() method of the superclass!
         """
-        # BEGIN Problem 12
-        "*** YOUR CODE HERE ***"
-        # END Problem 12
+        if cls.Queen_exists:
+            return None
+        cls.Queen_exists = True
+        return super().construct(gamestate)
+
 
     def action(self, gamestate):
         """A queen ant throws a leaf, but also doubles the damage of ants
         in her tunnel.
         """
-        # BEGIN Problem 12
-        "*** YOUR CODE HERE ***"
-        # END Problem 12
+        super().action(gamestate)
+        leave_spot = self.place.exit
+        while leave_spot != None:
+            if leave_spot.ant != None:
+                if leave_spot.ant.is_container == True and leave_spot.ant.ant_contained != None:
+                    leave_spot.ant.ant_contained.double()
+                leave_spot.ant.double()
+            leave_spot = leave_spot.exit
 
     def reduce_health(self, amount):
         """Reduce health by AMOUNT, and if the QueenAnt has no health
         remaining, signal the end of the game.
         """
-        # BEGIN Problem 12
-        "*** YOUR CODE HERE ***"
-        # END Problem 12
-
+        ScubaThrower.reduce_health(self, amount)
+        if self.health <= 0:
+            ants_lose()
+    def remove_from(self, place):
+        if not self.Queen_exists:
+            ScubaThrower.remove_from(self,place)
 
 class AntRemover(Ant):
     """Allows the player to remove ants from the board in the GUI."""
@@ -428,10 +451,7 @@ class Bee(Insect):
     def blocked(self):
         """Return True if this Bee cannot advance to the next Place."""
         # Special handling for NinjaAnt
-        # BEGIN Problem Optional 1
         return self.place.ant is not None
-        # END Problem Optional 1
-
     def action(self, gamestate):
         """A Bee's action stings the Ant that blocks its exit if it is blocked,
         or moves to the exit of its current place otherwise.
@@ -454,20 +474,11 @@ class Bee(Insect):
         place.bees.remove(self)
         Insect.remove_from(self, place)
 
-    def slow(self, length):
-        """Slow the bee for a further LENGTH turns."""
-        # BEGIN Problem EC
-        "*** YOUR CODE HERE ***"
-        # END Problem EC
+    #def slow(self, length):
 
-    def scare(self, length):
+    #def scare(self, length):
         """
-        If this Bee has not been scared before, cause it to attempt to
-        go backwards LENGTH times.
-        """
-        # BEGIN Problem EC
-        "*** YOUR CODE HERE ***"
-        # END Problem EC
+"""
 
 
 ############
